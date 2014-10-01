@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Utility" basedir="." default="deploy">
+
+	<property file="build.properties" />
+
+	<path id="compile.lib">
+		<fileset dir="${lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<target name="clean">
+		<delete dir="${build.class.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<target name="compile" depends="clean">
+		<mkdir dir="${build.class.dir}" />
+		<mkdir dir="${dist.dir}" />
+
+		<javac destdir="${build.class.dir}" debug="false" verbose="false">
+			<src>
+				<path location="${src.dir}" />
+			</src>
+			<classpath refid="compile.lib" />
+		</javac>
+	</target>
+
+
+
+	<!-- ================================= 
+                     target: package              
+     ================================= -->
+	<target name="package" depends="compile" description="package the classes in WAR">
+			<war destfile="${dist.dir}/Utility.war" webxml="${deployment.descriptor}" >
+				<fileset dir="${app.dir}" />
+			  <classes dir="${build.class.dir}"/>
+			</war>
+	</target>
+	
+	
+	<target name="deploy" depends="package" description="Copy war file to deploy dir">
+		<copy file="${dist.dir}/Utility.war" todir="${tomcat.home}/webapps" overwrite="true" failonerror="true"/>
+	</target>
+	
+	
+	<target name="start_tomcat">
+		<exec executable="${tomcat.home}/bin/startup.bat" spawn="true">
+		</exec>
+
+	</target>
+	
+	
+	<target name="stop_tomcat">
+		<exec executable="${tomcat.home}/bin/shutdown.bat" spawn="true">
+		</exec>
+
+	</target>
+	
+	
+	<target name="restart_tomcat">
+		<antcall target="stop_tomcat"/>
+		 <sleep seconds="5"/>
+		<antcall target="start_tomcat"/>
+	</target>
+
+</project>
+
+
+
+
+
